@@ -1,6 +1,7 @@
 const Product = require("../../models/Product");
 const Order = require("../../models/Order");
 const ProductReview = require("../../models/Review");
+
 const addProductReview = async (req, res) => {
   try {
     const { productId, userId, username, reviewMessage, reviewValue } =
@@ -15,17 +16,22 @@ const addProductReview = async (req, res) => {
     if (!order) {
       return res.status(403).json({
         success: false,
-        message: "You need to purchase this product to review",
+        message: "You need to purchase product to review it.",
       });
     }
 
-    const existingReview = await ProductReview.findOne({ productId, userId });
-    if (existingReview) {
+    const checkExistinfReview = await ProductReview.findOne({
+      productId,
+      userId,
+    });
+
+    if (checkExistinfReview) {
       return res.status(400).json({
         success: false,
-        message: "You have already reviewed this product",
+        message: "You already reviewed this product!",
       });
     }
+
     const newReview = new ProductReview({
       productId,
       userId,
@@ -33,16 +39,27 @@ const addProductReview = async (req, res) => {
       reviewMessage,
       reviewValue,
     });
+
     await newReview.save();
+
     const reviews = await ProductReview.find({ productId });
     const totalReviewsLength = reviews.length;
-    
-    
+    const averageReview =
+      reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
+      totalReviewsLength;
+
     await Product.findByIdAndUpdate(productId, { averageReview });
-    res.json({ success: true, data: newReview });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Some error occured" });
+
+    res.status(201).json({
+      success: true,
+      data: newReview,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error",
+    });
   }
 };
 const getProductReviews = async (req, res) => {

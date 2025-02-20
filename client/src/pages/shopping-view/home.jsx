@@ -48,7 +48,7 @@ const brandswithIcon = [
   { id: "h&m", label: "H&M", icon: Heater },
 ];
 const ShoppingHome = () => {
-  console.log(sessionStorage.getItem("token"), "abhay");
+  // console.log(sessionStorage.getItem("token"), "abhay");
   const slides = [bannerOne, bannerTwo, bannerThree];
   const { productList, productDetails } = useSelector(
     (state) => state.shopProducts
