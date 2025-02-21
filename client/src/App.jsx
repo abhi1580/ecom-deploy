@@ -23,6 +23,7 @@ import PaypalReturnPage from "./pages/shopping-view/paypal-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import SearchProducts from "./pages/shopping-view/search";
 import AdminDashboard from "./pages/admin-view/dashboard";
+import PaymentCancelPage from "./pages/shopping-view/payment-cancel";
 
 function App() {
   const { isAuthenticated, user, isLoading } = useSelector(
@@ -101,8 +102,9 @@ function App() {
           <Route path="listing" element={<ShoppingList />} />
           <Route path="checkout" element={<ShoppingCheckout />} />
           <Route path="account" element={<ShoppingAccount />} />
-          <Route path="paypal-cancel" element={<PaypalReturnPage />} />
+          <Route path="paypal-return" element={<PaypalReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
+          <Route path="paypal-cancel" element={<PaymentCancelPage />} />
           <Route path="search" element={<SearchProducts />} />
         </Route>
         {/* Page Not Found Routes */}
