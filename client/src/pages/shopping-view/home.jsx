@@ -62,6 +62,7 @@ const ShoppingHome = () => {
   const { toast } = useToast();
   const { user } = useSelector((state) => state.auth);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const { cartItems } = useSelector((state) => state.shopCart);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -77,8 +78,26 @@ const ShoppingHome = () => {
   function handleGetProductDetails(getCurrentProductId) {
     dispatch(fetchProductDetails(getCurrentProductId));
   }
-  function handleAddToCart(getCurrentProductId) {
-    // console.log(getCurrentProductId);
+  function handleAddToCart(getCurrentProductId, getTotalStock) {
+    console.log(cartItems);
+    let getCartItems = cartItems.items || [];
+
+    if (getCartItems.length) {
+      const indexOfCurrentItem = getCartItems.findIndex(
+        (item) => item.productId === getCurrentProductId
+      );
+      if (indexOfCurrentItem > -1) {
+        const getQuantity = getCartItems[indexOfCurrentItem].quantity;
+        if (getQuantity + 1 > getTotalStock) {
+          toast({
+            title: `Only ${getQuantity} quantity can be added for this item`,
+            variant: "destructive",
+          });
+
+          return;
+        }
+      }
+    }
     dispatch(
       addToCart({
         userId: user.id,
@@ -126,7 +145,11 @@ const ShoppingHome = () => {
   // console.log(productList);
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="relative w-full h-[600px] overflow-hidden">
+      <div
+        className={`relative w-full h-[600px] overflow-hidden ${
+          featureImageList.length <= 0 ? "hidden" : ""
+        }`}
+      >
         {featureImageList && featureImageList.length > 0
           ? featureImageList.map((slide, index) => (
               <img
