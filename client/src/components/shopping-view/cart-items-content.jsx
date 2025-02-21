@@ -66,7 +66,7 @@ const UserCartItemsContent = ({ cartItem }) => {
     ).then((data) => {
       toast({
         title: "Item deleted from cart",
-        variant: "info",
+        variant: "destructive",
       });
     });
   }
