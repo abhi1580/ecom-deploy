@@ -1,13 +1,20 @@
 import React from "react";
-import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../ui/dialog";
 import { Button } from "../ui/button";
 import UserCartItemsContent from "./cart-items-content";
 import { useNavigate } from "react-router-dom";
 
-const UserCartWrapper = ({ cartItems, setOpenCartSheet }) => {
+const UserCartWrapper = ({ cartItems, setOpenCartDialog }) => {
   const navigate = useNavigate();
+
   const totalCartAmount =
-    cartItems && cartItems.length > 0
+    cartItems?.length > 0
       ? cartItems.reduce(
           (sum, currentItem) =>
             sum +
@@ -20,40 +27,47 @@ const UserCartWrapper = ({ cartItems, setOpenCartSheet }) => {
       : 0;
 
   return (
-    <SheetContent className="sm:max-w-md">
-      <SheetHeader>
-        <SheetTitle>Your Cart</SheetTitle>
-      </SheetHeader>
-      <div className="mt-8 space-y-4">
-        {cartItems && cartItems.length > 0 ? (
+    <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden">
+      <DialogHeader>
+        <DialogTitle>Your Cart</DialogTitle>
+      </DialogHeader>
+
+      {/* Scrollable cart items container */}
+      <div className="mt-4 space-y-4 max-h-[50vh] overflow-y-auto px-2">
+        {cartItems?.length > 0 ? (
           cartItems.map((item) => (
             <UserCartItemsContent key={item.productId} cartItem={item} />
           ))
         ) : (
-          <p>Your cart is empty</p>
+          <p className="text-center text-gray-500">Your cart is empty</p>
         )}
       </div>
 
-      {cartItems && cartItems.length > 0 && (
+      {cartItems?.length > 0 && (
         <>
-          <div className="mt-8 space-y-4">
-            <div className="flex justify-between">
-              <span className="font-bold">Total</span>
-              <span className="font-bold">₹{totalCartAmount.toFixed(2)}</span>
-            </div>
+          {/* Total amount */}
+          <div className="mt-4 flex justify-between font-bold text-lg">
+            <span>Total</span>
+            <span>₹{totalCartAmount.toFixed(2)}</span>
           </div>
-          <Button
-            className="w-full mt-6"
-            onClick={() => {
-              navigate("/shop/checkout");
-              setOpenCartSheet(false);
-            }}
-          >
-            Checkout
-          </Button>
+
+          {/* Action buttons */}
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setOpenCartDialog(false)}>
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                navigate("/shop/checkout");
+                setOpenCartDialog(false);
+              }}
+            >
+              Checkout
+            </Button>
+          </DialogFooter>
         </>
       )}
-    </SheetContent>
+    </DialogContent>
   );
 };
 

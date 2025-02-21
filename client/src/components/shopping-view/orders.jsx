@@ -87,6 +87,7 @@ const ShoppingOrders = () => {
                           setOpenDetailsDialog(false);
                           dispatch(resetOrderDetails());
                         }}
+                        aia-hideen="false"
                       >
                         <Button
                           onClick={() => handleFetchOrderDetails(orderItem._id)}
