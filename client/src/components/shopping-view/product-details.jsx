@@ -68,6 +68,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     setOpen(false);
     dispatch(setProductDetails());
     setRating(0);
+    setReviewMsg("");
     dispatch(resetReviews()); // Clear the reviews when closing
   }
 
