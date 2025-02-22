@@ -38,6 +38,7 @@ const ShoppingOrders = () => {
   useEffect(() => {
     dispatch(getAllOrderByUserId(user?.id)).then((data) => {
       if (data?.payload?.success) {
+        
       }
     });
   }, [dispatch]);
