@@ -148,39 +148,44 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
           </div>
 
           {/* Product Info */}
-          <div className="flex-1 space-y-4">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-              {productDetails?.title}
-            </h1>
+          <div className="flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
+                {productDetails?.title}
+              </h1>
 
-            {/* Price Section */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-              <p className="text-xl font-bold text-gray-900">
-                ₹{productDetails?.price}
-              </p>
-              {productDetails?.salePrice > 0 && (
-                <p className="text-xl font-bold text-green-500">
-                  ₹{productDetails?.salePrice} ({discountPercentage.toFixed(2)}%
-                  off)
+              {/* Price Section */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <p className="text-xl font-bold text-gray-900">
+                  ₹{productDetails?.price}
                 </p>
-              )}
+                {productDetails?.salePrice > 0 && (
+                  <p className="text-xl font-bold text-green-500">
+                    ₹{productDetails?.salePrice} (
+                    {discountPercentage.toFixed(2)}% off)
+                  </p>
+                )}
+              </div>
+
+              {/* Rating */}
+              <div className="flex items-center gap-2">
+                <StarRatingComponent
+                  isClickable={false}
+                  rating={averageReview}
+                />
+                <span className="text-gray-500">
+                  ({averageReview.toFixed(2)})
+                </span>
+              </div>
+
+              {/* Description */}
+              <div className="prose max-w-none">
+                <p className="text-gray-700">{productDetails?.description}</p>
+              </div>
             </div>
 
-            {/* Rating */}
-            <div className="flex items-center gap-2">
-              <StarRatingComponent isClickable={false} rating={averageReview} />
-              <span className="text-gray-500">
-                ({averageReview.toFixed(2)})
-              </span>
-            </div>
-
-            {/* Description */}
-            <div className="prose max-w-none">
-              <p className="text-gray-700">{productDetails?.description}</p>
-            </div>
-
-            {/* Add to Cart Button */}
-            <div className="mt-2">
+            {/* Add to Cart Button at Bottom */}
+            <div className="mt-auto">
               {productDetails?.totalStock === 0 ? (
                 <Button className="w-full bg-gray-400 text-white cursor-not-allowed">
                   Out of Stock

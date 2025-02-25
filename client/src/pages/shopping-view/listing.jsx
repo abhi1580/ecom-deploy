@@ -38,7 +38,7 @@ function createSearchParamsHelper(filterParams) {
 }
 const ShoppingList = () => {
   const dispatch = useDispatch();
-  const { productList, productDetails } = useSelector(
+  const { productList, productDetails, isLoading } = useSelector(
     (state) => state.shopProducts
   );
 
@@ -156,6 +156,17 @@ const ShoppingList = () => {
     }
   }, [productDetails]);
   // console.log(productList);
+
+  //Loader
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="relative w-12 h-12">
+          <div className="absolute w-12 h-12 border-4 border-gray-600 border-t-transparent animate-spin rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-col-1  md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">

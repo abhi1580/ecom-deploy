@@ -24,7 +24,9 @@ const ShoppingOrders = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { orderList, orderDetails } = useSelector((state) => state.shopOrder);
+  const { orderList, orderDetails, isLoading } = useSelector(
+    (state) => state.shopOrder
+  );
 
   function handleFetchOrderDetails(getId) {
     dispatch(getOrderDetails(getId));
@@ -38,11 +40,22 @@ const ShoppingOrders = () => {
   useEffect(() => {
     dispatch(getAllOrderByUserId(user?.id)).then((data) => {
       if (data?.payload?.success) {
-        
       }
     });
   }, [dispatch]);
+
   console.log(orderDetails);
+
+  //Loader
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="relative w-12 h-12">
+          <div className="absolute w-12 h-12 border-4 border-gray-600 border-t-transparent animate-spin rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
   return (
     <Card>
       <CardHeader>

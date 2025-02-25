@@ -15,7 +15,7 @@ import { useSearchParams } from "react-router-dom";
 const SearchProducts = () => {
   const [keyword, setKeyword] = useState("");
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const { searchResults } = useSelector((state) => state.shopSearch);
+  const { searchResults, isLoading } = useSelector((state) => state.shopSearch);
   const { productDetails } = useSelector((state) => state.shopProducts);
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
@@ -85,6 +85,16 @@ const SearchProducts = () => {
     });
   }
   // console.log(searchResults);
+  //Loader
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="relative w-12 h-12">
+          <div className="absolute w-12 h-12 border-4 border-gray-600 border-t-transparent animate-spin rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto md:px-6 px-4 py-8">
       <div className="flex justify-center mb-8">

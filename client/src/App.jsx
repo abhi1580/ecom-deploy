@@ -38,18 +38,19 @@ function App() {
     dispatch(checkAuth(token));
   }, [dispatch]);
 
-  if (isLoading) {
-    return <Skeleton className="w-full h-screen bg-gray-200" />;
-  }
   // if (isLoading) {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen bg-gray-100">
-  //       <div className="relative w-12 h-12">
-  //         <div className="absolute w-12 h-12 border-4 border-gray-600 border-t-transparent animate-spin rounded-md"></div>
-  //       </div>
-  //     </div>
-  //   );
+  //   return <Skeleton className="w-full h-screen bg-gray-200" />;
   // }
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="relative w-12 h-12">
+          <div className="absolute w-12 h-12 border-4 border-gray-600 border-t-transparent animate-spin rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       {/* <h2 className="text-pri">Hello</h2> */}
