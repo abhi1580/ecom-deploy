@@ -44,8 +44,10 @@ const ShoppingCheckout = () => {
       });
       return;
     }
+    console.log(user.username);
     const orderData = {
       userId: user?.id,
+      username: user?.username,
       cartId: cartItems?._id,
       cartItems: cartItems.items.map((singleCartItem) => ({
         productId: singleCartItem?.productId,

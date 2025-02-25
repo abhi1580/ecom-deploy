@@ -27,7 +27,7 @@ const ShoppingOrders = () => {
   const { orderList, orderDetails, isLoading } = useSelector(
     (state) => state.shopOrder
   );
-
+  console.log(orderList);
   function handleFetchOrderDetails(getId) {
     dispatch(getOrderDetails(getId));
     setOpenDetailsDialog(true);
