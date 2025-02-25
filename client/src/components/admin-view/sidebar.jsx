@@ -5,6 +5,8 @@ import {
   LucideShoppingBasket,
   Atom,
   ChartNoAxesCombined,
+  CassetteTape,
+  CassetteTapeIcon,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 
@@ -26,6 +28,18 @@ const adminSidebarMenuItems = [
     label: "Orders",
     path: "/admin/orders",
     icon: <LucideShoppingBasket />,
+  },
+  {
+    id: "addcategory",
+    label: "Add Category",
+    path: "/admin/addcategory",
+    icon: <CassetteTapeIcon />,
+  },
+  {
+    id: "addbrand",
+    label: "Add Brand",
+    path: "/admin/addbrand",
+    icon: <CassetteTapeIcon />,
   },
 ];
 

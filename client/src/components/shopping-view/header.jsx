@@ -23,7 +23,12 @@ import { logoutUser, resetTokenAndCredentials } from "@/store/auth-slice";
 import UserCartWrapper from "./cart-wrapper";
 import { fetchCartItems } from "@/store/shop/cart-slice";
 import { Label } from "../ui/label";
-import { Dialog } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "../ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 
 function MenuItems({ closeSidebar }) {
@@ -77,35 +82,36 @@ function HeaderRightContent() {
   const [openCartDialog, setOpenCartDialog] = useState(false);
 
   function handleLogout() {
-    // dispatch(logoutUser());
+    dispatch(logoutUser()); // Uncomment if you want to use this action
     dispatch(resetTokenAndCredentials());
     sessionStorage.clear();
     navigate("/auth/login");
   }
 
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
-  }, [dispatch]);
+    if (user?.id) {
+      dispatch(fetchCartItems(user.id));
+    }
+  }, [dispatch, user?.id]);
 
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
       <Dialog open={openCartDialog} onOpenChange={setOpenCartDialog}>
-        <DialogTitle className="sr-only">Cart</DialogTitle>
-        <Button
-          onClick={() => {
-            setOpenCartDialog(true);
-            closes;
-          }}
-          variant="outline"
-          size="icon"
-          className="relative"
-        >
-          <ShoppingCart className="w-6 h-6" />
-          <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
-            {cartItems?.items?.length || "0"}
-          </span>
-          <span className="sr-only">User cart</span>
-        </Button>
+        {/* DialogTrigger is required to open the dialog */}
+        <DialogTrigger asChild>
+          <Button variant="outline" size="icon" className="relative">
+            <ShoppingCart className="w-6 h-6" />
+            <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
+              {cartItems?.items?.length || "0"}
+            </span>
+            <span className="sr-only">User cart</span>
+          </Button>
+        </DialogTrigger>
+
+        {/* DialogContent defines the content inside the dialog */}
+        <DialogHeader>
+          <DialogTitle className="sr-only">Cart</DialogTitle>
+        </DialogHeader>
         <UserCartWrapper
           setOpenCartDialog={setOpenCartDialog}
           cartItems={cartItems?.items || []}
@@ -116,12 +122,12 @@ function HeaderRightContent() {
         <DropdownMenuTrigger asChild>
           <Avatar className="bg-black">
             <AvatarFallback className="bg-black text-white font-extrabold">
-              {user.username[0].toUpperCase()}
+              {user?.username?.[0]?.toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="right" className="w-56">
-          <DropdownMenuLabel>Logged in as {user.username}</DropdownMenuLabel>
+          <DropdownMenuLabel>Logged in as {user?.username}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate("/shop/account")}>
             <UserCog className="mr-2 h-4 w-4" />

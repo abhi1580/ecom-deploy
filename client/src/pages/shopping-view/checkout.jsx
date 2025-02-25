@@ -16,11 +16,8 @@ const ShoppingCheckout = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  // console.log(cartItems.items);
-  // console.log(currentSelectedAddress);
-
   const totalCartAmount =
-    cartItems && cartItems.items && cartItems.items.length > 0
+    cartItems?.items?.length > 0
       ? cartItems.items.reduce(
           (sum, currentItem) =>
             sum +
@@ -31,15 +28,16 @@ const ShoppingCheckout = () => {
           0
         )
       : 0;
+
   function handleInitiatePaypalPayment() {
-    if (cartItems.length == 0) {
+    if (!cartItems?.items?.length) {
       toast({
-        title: "Your cart is empty please add items to proceed!",
+        title: "Your cart is empty. Please add items to proceed!",
         variant: "destructive",
       });
       return;
     }
-    if (currentSelectedAddress === null) {
+    if (!currentSelectedAddress) {
       toast({
         title: "Please select an address to proceed!",
         variant: "destructive",
@@ -77,19 +75,18 @@ const ShoppingCheckout = () => {
       payerId: "",
     };
     dispatch(createNewOrder(orderData)).then((data) => {
-      console.log(data);
       if (data?.payload?.success) {
         setIsPaymentStart(true);
       } else {
         setIsPaymentStart(false);
       }
     });
-
-    // console.log(orderData.addressInfo);
   }
+
   if (approvalURL) {
     window.location.href = approvalURL;
   }
+
   return (
     <div className="flex flex-col">
       <div className="relative h-[300] w-full overflow-hidden">
@@ -99,35 +96,41 @@ const ShoppingCheckout = () => {
           className="h-full w-full object-cover object-center"
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-5 ">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-5">
         <Address
           selectedId={currentSelectedAddress}
           setCurrentSelectedAddress={setCurrentSelectedAddress}
         />
-        <div className="flex flex-col gap-4 ">
-          {cartItems && cartItems.items && cartItems.items.length > 0
-            ? cartItems.items.map((item) => (
+        <div className="flex flex-col gap-4">
+          {cartItems?.items?.length > 0 ? (
+            <>
+              {cartItems.items.map((item) => (
                 <UserCartItemsContent key={item.productId} cartItem={item} />
-              ))
-            : null}
-          <div className="mt-8 space-y-4">
-            <div className="flex justify-between">
-              <span className="font-bold">Total</span>
-              <span className="font-bold">₹{totalCartAmount.toFixed(2)}</span>
-            </div>
-          </div>
-          <div className="mt-4 w-full">
-            <Button
-              onClick={() => {
-                handleInitiatePaypalPayment();
-              }}
-              className="w-full mt-4 "
-            >
-              {isPaymentStart
-                ? "Processing paypal payment.."
-                : "Checkout with Paypal "}
-            </Button>
-          </div>
+              ))}
+              <div className="mt-8 space-y-4">
+                <div className="flex justify-between">
+                  <span className="font-bold">Total</span>
+                  <span className="font-bold">
+                    ₹{totalCartAmount.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-4 w-full">
+                <Button
+                  onClick={handleInitiatePaypalPayment}
+                  className="w-full mt-4"
+                >
+                  {isPaymentStart
+                    ? "Processing Paypal payment.."
+                    : "Checkout with Paypal"}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <p className="text-center text-lg font-semibold text-gray-500">
+              Your cart is empty. Please add items to proceed!
+            </p>
+          )}
         </div>
       </div>
     </div>

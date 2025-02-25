@@ -24,8 +24,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const { toast } = useToast();
 
   function handleRatingChange(getRating) {
-    // console.log(getRating, "getRating");
-
     setRating(getRating);
   }
 
@@ -43,7 +41,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             title: `Only ${getQuantity} quantity can be added for this item`,
             variant: "destructive",
           });
-
           return;
         }
       }
@@ -90,7 +87,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
       });
       return;
     }
-    console.log(cartItems);
 
     dispatch(
       addReview({
@@ -128,153 +124,19 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
       ? reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
         reviews.length
       : 0;
+
   const discountPercentage =
     productDetails?.salePrice > 0
       ? ((productDetails.price - productDetails.salePrice) /
           productDetails.price) *
         100
       : 0;
+
   return (
-    // For horizontal reviews
-    //     <Dialog open={open} onOpenChange={handleDialogClose}>
-    //   <DialogTitle className="sr-only">Product Details</DialogTitle>
-    //   <DialogContent className="max-w-4xl w-full p-0 rounded-lg shadow-2xl bg-white max-h-[90vh] overflow-hidden flex flex-col">
-    //     {/* Scrollable Content */}
-    //     <div className="overflow-y-auto flex-1">
-    //       {/* Product Details */}
-    //       <div className="flex flex-col md:flex-row">
-    //         {/* Product Image */}
-    //         <div className="md:w-1/3 bg-gray-100 p-6 flex items-center justify-center">
-    //           <img
-    //             src={productDetails?.image}
-    //             alt={productDetails?.title}
-    //             className="w-full h-auto max-h-[400px] object-contain rounded-lg"
-    //           />
-    //         </div>
-
-    //         {/* Product Info */}
-    //         <div className="flex-1 p-6 md:p-8 space-y-6">
-    //           <h1 className="text-3xl font-bold text-gray-900">
-    //             {productDetails?.title}
-    //           </h1>
-    //           <p className="text-gray-600 text-lg">
-    //             {productDetails?.description}
-    //           </p>
-
-    //           {/* Price Section */}
-    //           <div className="flex items-center justify-between">
-    //             <p className="text-2xl font-bold text-gray-900">
-    //               ₹{productDetails?.price}
-    //             </p>
-    //             {productDetails?.salePrice > 0 && (
-    //               <p className="text-2xl font-bold text-green-600">
-    //                 ₹{productDetails?.salePrice} (
-    //                 {discountPercentage.toFixed(2)}% off)
-    //               </p>
-    //             )}
-    //           </div>
-
-    //           {/* Rating */}
-    //           <div className="flex items-center gap-2">
-    //             <StarRatingComponent isClickable={false} rating={averageReview} />
-    //             <span className="text-gray-500 text-lg">
-    //               ({averageReview.toFixed(2)})
-    //             </span>
-    //           </div>
-
-    //           {/* Add to Cart Button */}
-    //           {productDetails?.totalStock === 0 ? (
-    //             <Button className="w-full bg-gray-400 text-white cursor-not-allowed py-3 rounded-lg">
-    //               Out of Stock
-    //             </Button>
-    //           ) : (
-    //             <Button
-    //               className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
-    //               onClick={() =>
-    //                 handleAddToCart(
-    //                   productDetails?._id,
-    //                   productDetails?.totalStock
-    //                 )
-    //               }
-    //             >
-    //               Add to Cart
-    //             </Button>
-    //           )}
-    //         </div>
-    //       </div>
-
-    //       {/* Divider */}
-    //       <div className="border-t border-gray-200 mx-6"></div>
-
-    //       {/* Customer Reviews - Horizontal Scrollable Carousel */}
-    //       <div className="p-6 md:p-8">
-    //         <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
-    //         <div className="overflow-x-auto scrollbar-hide">
-    //           <div className="flex gap-4 pb-4">
-    //             {reviews?.length > 0 ? (
-    //               reviews.map((reviewItem, index) => (
-    //                 <div
-    //                   key={index}
-    //                   className="flex-shrink-0 w-72 p-4 border rounded-lg shadow-sm hover:shadow-md transition-all"
-    //                 >
-    //                   <div className="flex gap-4">
-    //                     <Avatar className="w-12 h-12 border-2 border-white shadow-md">
-    //                       <AvatarFallback className="bg-blue-500 text-white">
-    //                         {reviewItem?.username[0].toUpperCase()}
-    //                       </AvatarFallback>
-    //                     </Avatar>
-    //                     <div className="space-y-2">
-    //                       <h3 className="font-bold text-gray-900 text-lg">
-    //                         {reviewItem?.username}
-    //                       </h3>
-    //                       <StarRatingComponent
-    //                         isClickable={false}
-    //                         rating={reviewItem?.reviewValue}
-    //                       />
-    //                       <p className="text-gray-600 text-base">
-    //                         {reviewItem.reviewMessage}
-    //                       </p>
-    //                     </div>
-    //                   </div>
-    //                 </div>
-    //               ))
-    //             ) : (
-    //               <p className="text-gray-500 text-lg">No reviews yet.</p>
-    //             )}
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-
-    //     {/* Write a Review (Sticky Bottom Section) */}
-    //     <div className="bg-gray-50 p-6 md:p-8 border-t border-gray-200">
-    //       <Label className="text-xl font-semibold mb-4">Write a Review</Label>
-    //       <StarRatingComponent
-    //         rating={rating}
-    //         handleRatingChange={handleRatingChange}
-    //       />
-    //       <Input
-    //         name="reviewMsg"
-    //         value={reviewMsg}
-    //         onChange={(event) => setReviewMsg(event.target.value)}
-    //         placeholder="Share your thoughts..."
-    //         className="w-full p-3 border rounded-lg mt-4 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-    //       />
-    //       <Button
-    //         onClick={handleAddReview}
-    //         disabled={reviewMsg.trim() === ""}
-    //         className="w-full mt-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
-    //       >
-    //         Submit Review
-    //       </Button>
-    //     </div>
-    //   </DialogContent>
-    // </Dialog>
-
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTitle className="sr-only" />
       <DialogContent className="max-w-4xl w-full p-6 sm:p-8 rounded-lg shadow-xl bg-white max-h-[90vh] overflow-auto">
-        {/* Product Details */}
+        {/* Product Main Section */}
         <div className="flex flex-col md:flex-row gap-6">
           {/* Product Image */}
           <div className="md:w-1/3 flex-shrink-0">
@@ -286,26 +148,20 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
           </div>
 
           {/* Product Info */}
-          <div className="flex-1 space-y-3">
+          <div className="flex-1 space-y-4">
             <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
               {productDetails?.title}
             </h1>
-            <p className="text-gray-600">{productDetails?.description}</p>
 
-            {/* Price Section with Alignment Logic */}
-            <div className="flex items-center justify-between">
+            {/* Price Section */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <p className="text-xl font-bold text-gray-900">
                 ₹{productDetails?.price}
               </p>
-
               {productDetails?.salePrice > 0 && (
                 <p className="text-xl font-bold text-green-500">
-                  {productDetails?.salePrice > 0 && (
-                    <p className="text-xl font-bold text-green-500">
-                      ₹{productDetails?.salePrice} (
-                      {discountPercentage.toFixed(2)}% off)
-                    </p>
-                  )}
+                  ₹{productDetails?.salePrice} ({discountPercentage.toFixed(2)}%
+                  off)
                 </p>
               )}
             </div>
@@ -318,8 +174,13 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               </span>
             </div>
 
+            {/* Description */}
+            <div className="prose max-w-none">
+              <p className="text-gray-700">{productDetails?.description}</p>
+            </div>
+
             {/* Add to Cart Button */}
-            <div className="mt-4">
+            <div className="mt-2">
               {productDetails?.totalStock === 0 ? (
                 <Button className="w-full bg-gray-400 text-white cursor-not-allowed">
                   Out of Stock
@@ -341,12 +202,10 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
           </div>
         </div>
 
-        {/* Divider */}
         <Separator className="my-6" />
 
         {/* Customer Reviews */}
         <h2 className="text-xl font-bold mb-4">Customer Reviews</h2>
-
         <div className="space-y-4">
           {reviews?.length > 0 ? (
             reviews.map((reviewItem, index) => (
@@ -390,7 +249,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             value={reviewMsg}
             onChange={(event) => setReviewMsg(event.target.value)}
             placeholder="Share your thoughts..."
-            className="p-2 border rounded-md mt-2"
+            className="p-2 border rounded-md mt-2 w-full"
           />
           <Button
             onClick={handleAddReview}
