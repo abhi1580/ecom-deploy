@@ -20,144 +20,121 @@ import { useSearchParams } from "react-router-dom";
 import ProductDetailsDialog from "../../components/shopping-view/product-details";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/hooks/use-toast";
+import CustomPagination from "@/components/common/pagination";
 
-function createSearchParamsHelper(filterParams) {
-  const queryParams = [];
-
-  for (const [key, value] of Object.entries(filterParams)) {
-    if (Array.isArray(value) && value.length > 0) {
-      const paramValue = value.join(",");
-
-      queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
-    }
-  }
-
-  // console.log(queryParams, "queryParams");
-
-  return queryParams.join("&");
-}
 const ShoppingList = () => {
   const dispatch = useDispatch();
-  const { productList, productDetails, isLoading } = useSelector(
-    (state) => state.shopProducts
-  );
-
+  const { productList, productDetails, isLoading, totalProducts, showing } =
+    useSelector((state) => state.shopProducts);
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
+
   const [filters, setFilters] = useState({});
-  const [sort, setSort] = useState(null);
+  const [sort, setSort] = useState("price-lowtohigh");
   const [searchParams, setSearchParams] = useSearchParams();
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const { toast } = useToast();
+
   const categorySearchParam = searchParams.get("category");
-  // console.log(productList);
-  //fetchlist of products
-  //set sort property
-  function handleSort(value) {
-    setSort(value);
-  }
+  const limit = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(totalProducts / limit);
 
-  //set filter property
-  function handleFilter(getSectionId, getCurrentOption) {
-    // console.log(getSectionId, getCurrentOption);
-    let cpyFilters = { ...filters };
-    let indexOfCurrentSection = Object.keys(cpyFilters).indexOf(getSectionId);
-    if (indexOfCurrentSection === -1) {
-      cpyFilters = {
-        ...cpyFilters,
-        [getSectionId]: [getCurrentOption],
-      };
-    } else {
-      const indexOfCurrentOption =
-        cpyFilters[getSectionId].indexOf(getCurrentOption);
-      if (indexOfCurrentOption === -1) {
-        cpyFilters[getSectionId].push(getCurrentOption);
-      } else {
-        cpyFilters[getSectionId].splice(indexOfCurrentOption, 1);
-      }
-    }
-    setFilters(cpyFilters);
-    sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
-  }
-
-  function handleGetProductDetails(getCurrentProductId) {
-    dispatch(fetchProductDetails(getCurrentProductId));
-  }
-
-  function handleAddToCart(getCurrentProductId, getTotalStock) {
-    console.log(cartItems);
-    let getCartItems = cartItems.items || [];
-
-    if (getCartItems.length) {
-      const indexOfCurrentItem = getCartItems.findIndex(
-        (item) => item.productId === getCurrentProductId
-      );
-      if (indexOfCurrentItem > -1) {
-        const getQuantity = getCartItems[indexOfCurrentItem].quantity;
-        if (getQuantity + 1 > getTotalStock) {
-          toast({
-            title: `Only ${getQuantity} quantity can be added for this item`,
-            variant: "destructive",
-          });
-
-          return;
-        }
-      }
-    }
-    dispatch(
-      addToCart({
-        userId: user.id,
-        productId: getCurrentProductId,
-        quantity: 1,
-      })
-    ).then((data) => {
-      if (data?.payload?.success) {
-        // console.log(user.id, "userID");
-
-        dispatch(fetchCartItems(user?.id));
-        toast({
-          title: "Product added to cart successfully",
-        });
-      }
-    });
-  }
-  //set default sort and filters
   useEffect(() => {
-    setSort("price-lowtohigh");
     setFilters(JSON.parse(sessionStorage.getItem("filters")) || {});
   }, [categorySearchParam]);
-  //get parameters from URL
-  useEffect(() => {
-    if (filters && Object.keys(filters).length > 0) {
-      const createQueryString = createSearchParamsHelper(filters);
-      setSearchParams(new URLSearchParams(createQueryString));
-    }
-  }, [filters]);
-  //get filtered products based on search params and sort params
-  useEffect(() => {
-    if (filters !== null && sort !== null)
-      dispatch(
-        fetchAllFilteredProducts({ filterParams: filters, sortParams: sort })
-      );
-  }, [dispatch, sort, filters]);
-  //to set productDetails null after component unmount******************************************************
-  // useEffect(() => {
-  //   return () => {
-  //     dispatch(fetchProductDetails(null)); // Clear product details on unmount
-  //   };
-  // }, []);
-  //********************************************************************************************************** */
-  //open product details dialog when product details are fetched
-  useEffect(() => {
-    if (productDetails) {
-      setOpenDetailsDialog(true);
-    } else {
-      setOpenDetailsDialog(false);
-    }
-  }, [productDetails]);
-  // console.log(productList);
 
-  //Loader
+  useEffect(() => {
+    sessionStorage.setItem("filters", JSON.stringify(filters));
+
+    // const params = new URLSearchParams();
+    // Object.entries(filters).forEach(([key, value]) => {
+    //   if (Array.isArray(value) && value.length > 0) {
+    //     params.append(key, value.join(","));
+    //   }
+    // });
+    // params.set("page", currentPage);
+    // params.set("limit", limit);
+    // params.set("sort", sort);
+
+    const params = new URLSearchParams({
+      page: currentPage,
+      limit,
+      sort,
+      ...Object.fromEntries(
+        Object.entries(filters).map(([key, value]) => [
+          key,
+          Array.isArray(value) ? value.join(",") : value,
+        ])
+      ),
+    });
+
+    setSearchParams(params);
+  }, [filters, currentPage, sort]);
+
+  useEffect(() => {
+    dispatch(
+      fetchAllFilteredProducts({
+        filterParams: filters,
+        sortParams: sort,
+        page: currentPage,
+        limit,
+      })
+    );
+  }, [dispatch, sort, filters, currentPage]);
+
+  const handleSort = (value) => {
+    setSort(value);
+  };
+
+  const handleFilter = (sectionId, option) => {
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters };
+      if (!updatedFilters[sectionId]) updatedFilters[sectionId] = [];
+
+      const optionIndex = updatedFilters[sectionId].indexOf(option);
+      if (optionIndex === -1) {
+        updatedFilters[sectionId].push(option);
+      } else {
+        updatedFilters[sectionId].splice(optionIndex, 1);
+      }
+
+      return { ...updatedFilters };
+    });
+  };
+
+  const handleGetProductDetails = (productId) => {
+    dispatch(fetchProductDetails(productId));
+  };
+
+  const handleAddToCart = (productId, totalStock) => {
+    const cartItemsList = cartItems.items || [];
+    const existingItem = cartItemsList.find(
+      (item) => item.productId === productId
+    );
+
+    if (existingItem && existingItem.quantity + 1 > totalStock) {
+      toast({
+        title: `Only ${existingItem.quantity} quantity can be added for this item`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    dispatch(addToCart({ userId: user.id, productId, quantity: 1 })).then(
+      (data) => {
+        if (data?.payload?.success) {
+          dispatch(fetchCartItems(user?.id));
+          toast({ title: "Product added to cart successfully" });
+        }
+      }
+    );
+  };
+
+  useEffect(() => {
+    setOpenDetailsDialog(Boolean(productDetails));
+  }, [productDetails]);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -169,34 +146,38 @@ const ShoppingList = () => {
   }
 
   return (
-    <div className="grid grid-col-1  md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
-      <ProductFilter filters={filters} handleFilter={handleFilter} />
-      <div className="bg-background w-full rounded-lg shadow-sm">
-        <div className="p-4 border-b flex items-center justify-between">
-          <h2 className="text-lg font-extrabold">All Products</h2>
-          <div className="flex items-center gap-3">
-            <span className="text-muted-foreground ">
-              {productList.length} Products
-            </span>
+    <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8 p-6">
+      <div className="bg-white rounded-lg shadow-md p-4">
+        <ProductFilter filters={filters} handleFilter={handleFilter} />
+      </div>
+
+      <div className="bg-white w-full rounded-lg shadow-md">
+        <div className="p-5 border-b flex items-center justify-between bg-gray-50 rounded-t-lg">
+          <h2 className="text-xl font-bold text-gray-900">All Products</h2>
+          <div className="flex items-center gap-4">
+            {/* <span className="text-gray-600">{totalProducts} Products</span> */}
+            {productList && productList.length > 1 ? (
+              <span className="text-gray-600">{showing}</span>
+            ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-1"
+                  className="flex items-center gap-2"
                 >
-                  <ArrowUpDownIcon className="h-4 w-4" />
+                  <ArrowUpDownIcon className="h-4 w-4 text-gray-600" />
                   <span>Sort By</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuContent
+                align="end"
+                className="w-[200px] shadow-lg bg-white"
+              >
                 <DropdownMenuRadioGroup value={sort} onValueChange={handleSort}>
-                  {sortOptions.map((sortItem) => (
-                    <DropdownMenuRadioItem
-                      key={sortItem.id}
-                      value={sortItem.id}
-                    >
-                      {sortItem.label}
+                  {sortOptions.map((item) => (
+                    <DropdownMenuRadioItem key={item.id} value={item.id}>
+                      {item.label}
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>
@@ -204,19 +185,35 @@ const ShoppingList = () => {
             </DropdownMenu>
           </div>
         </div>
-        <div className="grid  sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4">
-          {productList && productList.length > 0
-            ? productList.map((productItem) => (
-                <ShoppingProductTile
-                  handleGetProductDetails={handleGetProductDetails}
-                  key={productItem._id}
-                  product={productItem}
-                  handleAddToCart={handleAddToCart}
-                />
-              ))
-            : null}
+
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-6">
+          {productList.length ? (
+            productList.map((product) => (
+              <ShoppingProductTile
+                key={product._id}
+                product={product}
+                handleGetProductDetails={handleGetProductDetails}
+                handleAddToCart={handleAddToCart}
+              />
+            ))
+          ) : (
+            <p className="text-center text-gray-500 col-span-full py-6">
+              No products found.
+            </p>
+          )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="border-t bg-gray-50 py-4 flex justify-center rounded-b-lg">
+            <CustomPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
+
       <ProductDetailsDialog
         open={openDetailsDialog}
         setOpen={setOpenDetailsDialog}

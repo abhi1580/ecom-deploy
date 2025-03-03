@@ -5,25 +5,36 @@ const initialState = {
   isLoading: false,
   productList: [],
   productDetails: null,
+  totalProducts: 0,
+  showing: "",
 };
 
 export const fetchAllFilteredProducts = createAsyncThunk(
   "/products/fetchAllProducts",
-  async ({ filterParams, sortParams }) => {
-    // console.log(fetchAllFilteredProducts, "fetchAllFilteredProducts");
+  async ({ filterParams, sortParams, page, limit }, { rejectWithValue }) => {
+    const query = new URLSearchParams();
 
-    const query = new URLSearchParams({
-      ...filterParams,
-      sortBy: sortParams,
+    // Convert filters properly
+    Object.entries(filterParams).forEach(([key, value]) => {
+      if (Array.isArray(value) && value.length > 0) {
+        query.append(key, value.join(",")); // Convert arrays to comma-separated values
+      } else if (value) {
+        query.append(key, value);
+      }
     });
 
-    const result = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/shop/products/get?${query}`
+    // Add other params
+    query.append("sortBy", sortParams);
+    query.append("page", page);
+    query.append("limit", limit);
+
+    const response = await axios.get(
+      `${
+        import.meta.env.VITE_API_URL
+      }/api/shop/products/get?${query.toString()}`
     );
 
-    // console.log(result);
-
-    return result?.data;
+    return response.data; // Ensure API returns `{ products: [], totalCount: 0 }`
   }
 );
 
@@ -59,6 +70,8 @@ const shoppingProductSlice = createSlice({
         // console.log(action.payload);
         state.isLoading = false;
         state.productList = action.payload.data;
+        state.totalProducts = action.payload.totalProducts;
+        state.showing = action.payload.showing;
       })
       .addCase(fetchAllFilteredProducts.rejected, (state, action) => {
         state.isLoading = false;

@@ -33,7 +33,7 @@ const AdminDashboard = () => {
       const data = await dispatch(addFeatureImage(uploadedImageUrl));
 
       if (data.payload.success) {
-        console.log(data.payload.success  );
+        console.log(data.payload.success);
         dispatch(getFeatureImages());
         setImageFile(null);
         setUploadedImageUrl("");
@@ -112,7 +112,7 @@ const AdminDashboard = () => {
               {/* Delete Icon */}
               <button
                 onClick={() => handleDeleteFeatureImage(featureImage._id)}
-                className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
+                className="absolute inset-0 flex items-center justify-center bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
               >
                 <Trash2 className="w-8 h-8 text-white" />
               </button>
