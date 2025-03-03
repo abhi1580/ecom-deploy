@@ -101,6 +101,7 @@ const ShoppingList = () => {
 
       return { ...updatedFilters };
     });
+    setCurrentPage(1); // Reset to first page on filter change
   };
 
   const handleGetProductDetails = (productId) => {
