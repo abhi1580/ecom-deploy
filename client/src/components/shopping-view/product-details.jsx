@@ -135,7 +135,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTitle className="sr-only" />
-      <DialogContent className="max-w-xl w-full p-6 sm:p-8 rounded-lg shadow-xl bg-white max-h-[90vh] overflow-auto">
+      <DialogContent className="max-w-xl w-full p-6 sm:p-8 rounded-lg shadow-xl bg-white max-h-[70vh] overflow-auto">
         {/* Product Main Section */}
         <div className="flex flex-col md:flex-row gap-6">
           {/* Product Image */}
