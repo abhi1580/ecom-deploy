@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { addProductFormElements } from "@/config";
 import { useToast } from "@/hooks/use-toast";
+import { getAllCategoriesForAdmin } from "@/store/admin/category-slice";
 import {
   addNewProduct,
   deleteProduct,
@@ -41,11 +42,15 @@ const AdminProducts = () => {
   const [currentEditedId, setCurrentEditedId] = useState(null);
 
   const { productList } = useSelector((state) => state.adminProducts);
+  const { categories = [] } = useSelector((state) => state.adminCategories);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
   // console.log("productList", productList);
   // console.log(uploadedImageUrl);
+  useEffect(() => {
+    dispatch(getAllCategoriesForAdmin());
+  }, [dispatch]);
 
   function onSubmit(e) {
     e.preventDefault();
@@ -88,7 +93,6 @@ const AdminProducts = () => {
     const confirm = window.confirm(
       "Are you sure you want to delete this product?"
     );
-    console.log(confirm);
     console.log(getcurrentProductId);
     if (confirm) {
       dispatch(deleteProduct(getcurrentProductId)).then((data) => {
@@ -113,8 +117,12 @@ const AdminProducts = () => {
   return (
     <Fragment>
       <div className="mb-5 w-full flex justify-end">
-        <Button onClick={() => setOpenCreateProductsDialog(true)}>
-          {" "}
+        <Button
+          onClick={() => {
+            setOpenCreateProductsDialog(true);
+            dispatch(getAllCategoriesForAdmin()); // Fetch updated categories when opening the form
+          }}
+        >
           Add new product
         </Button>
       </div>
@@ -176,7 +184,11 @@ const AdminProducts = () => {
               onSubmit={onSubmit}
               formData={formData}
               setFormData={setFormData}
-              formControls={addProductFormElements}
+              formControls={addProductFormElements.map((control) =>
+                control.name === "category"
+                  ? { ...control, options: categories || [] } // Replace category options with fetched categories
+                  : control
+              )}
               buttonText={currentEditedId !== null ? "Edit" : "Add"}
               isBtnDisabled={!isFormValid()}
             />

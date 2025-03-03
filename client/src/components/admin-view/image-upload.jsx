@@ -51,7 +51,7 @@ const ProductImageUpload = ({
       `${import.meta.env.VITE_API_URL}/api/admin/products/upload-image`,
       data
     );
-    console.log(response);
+    // console.log(response);
     if (response.data?.success) {
       setUploadedImageUrl(response.data.result.url);
       setImageLoadingState(false);

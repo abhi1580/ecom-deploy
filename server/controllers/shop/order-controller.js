@@ -3,6 +3,7 @@ const Order = require("../../models/Order");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
 
+//creating new order for the user ******************************************************************************************************************
 const createOrder = async (req, res) => {
   try {
     const {
@@ -96,7 +97,9 @@ const createOrder = async (req, res) => {
     });
   }
 };
+//**************************************************************************************************************************************************
 
+//capture payment by user **************************************************************************************************************************
 const capturePayment = async (req, res) => {
   try {
     const { paymentId, payerId, orderId } = req.body;
@@ -135,7 +138,9 @@ const capturePayment = async (req, res) => {
     res.status(500).json({ success: false, message: "Some error occured" });
   }
 };
+//**************************************************************************************************************************************************
 
+//gett orders by user (shop) ***********************************************************************************************************************
 const getAllOrderByUser = async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -151,7 +156,9 @@ const getAllOrderByUser = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Some error occured" });
   }
 };
+//**************************************************************************************************************************************************
 
+//get orderDeatils based in orderId ****************************************************************************************************************
 const getOrderDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -167,6 +174,8 @@ const getOrderDetails = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Some error occured" });
   }
 };
+//**************************************************************************************************************************************************
+
 module.exports = {
   createOrder,
   capturePayment,
