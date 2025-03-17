@@ -10,11 +10,13 @@ import {
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils"; // Utility for conditional classNames (if needed)
 
 const CommonForm = ({
   formControls,
   formData,
   setFormData,
+  errors = {},
   onSubmit,
   buttonText,
   isBtnDisabled,
@@ -22,86 +24,106 @@ const CommonForm = ({
   function renderInputsByComponentType(getControlItem) {
     let element = null;
     let value = formData[getControlItem.name] || "";
+    const error = errors[getControlItem.name]; // Get error for this field
+
     switch (getControlItem.componentType) {
       case "input":
         element = (
-          <Input
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.name}
-            type={getControlItem.type}
-            value={value}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: e.target.value,
-              })
-            }
-          />
+          <>
+            <Input
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.name}
+              type={getControlItem.type}
+              value={value}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  [getControlItem.name]: e.target.value,
+                })
+              }
+              className={cn(error ? "border-red-500" : "")}
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </>
         );
         break;
       case "select":
         element = (
-          <Select
-            onValueChange={(value) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: value,
-              })
-            }
-            value={value}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={getControlItem.label} />
-            </SelectTrigger>
-            <SelectContent>
-              {getControlItem.options && getControlItem.options.length > 0
-                ? getControlItem.options.map((optionItem) => (
-                    <SelectItem key={optionItem.id} value={optionItem.id}>
-                      {optionItem.label}
-                    </SelectItem>
-                  ))
-                : null}
-            </SelectContent>
-          </Select>
+          <>
+            <Select
+              onValueChange={(value) =>
+                setFormData({
+                  ...formData,
+                  [getControlItem.name]: value,
+                })
+              }
+              value={value}
+            >
+              <SelectTrigger
+                className={cn("w-full", error ? "border-red-500" : "")}
+              >
+                <SelectValue placeholder={getControlItem.label} />
+              </SelectTrigger>
+              <SelectContent>
+                {getControlItem.options && getControlItem.options.length > 0
+                  ? getControlItem.options.map((optionItem) => (
+                      <SelectItem key={optionItem.id} value={optionItem.id}>
+                        {optionItem.label}
+                      </SelectItem>
+                    ))
+                  : null}
+              </SelectContent>
+            </Select>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </>
         );
         break;
       case "textarea":
         element = (
-          <Textarea
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.id}
-            value={value}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: e.target.value,
-              })
-            }
-          />
+          <>
+            <Textarea
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.id}
+              value={value}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  [getControlItem.name]: e.target.value,
+                })
+              }
+              className={cn(error ? "border-red-500" : "")}
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </>
         );
         break;
-
       default:
         element = (
-          <Input
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.name}
-            type={getControlItem.type}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: e.target.value,
-              })
-            }
-          />
+          <>
+            <Input
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.name}
+              type={getControlItem.type}
+              value={value}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  [getControlItem.name]: e.target.value,
+                })
+              }
+              className={cn(error ? "border-red-500" : "")}
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </>
         );
         break;
     }
     return element;
   }
+
   return (
     <form onSubmit={onSubmit}>
       <div className="flex flex-col gap-3">

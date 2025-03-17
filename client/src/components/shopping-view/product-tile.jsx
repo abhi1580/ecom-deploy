@@ -69,7 +69,7 @@ const ShoppingProductTile = ({
             <span className="text-sm font-semibold text-green-600">
               ₹{product.salePrice}{" "}
               <span className="text-xs text-gray-500">
-                ({discountPercentage}% OFF)
+                ({discountPercentage}%Off)
               </span>
             </span>
           )}

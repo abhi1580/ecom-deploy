@@ -11,6 +11,7 @@ import {
 } from "@/store/shop/address-slice";
 import { useToast } from "@/hooks/use-toast";
 import AddressCard from "./address-card";
+
 const initialAddressFormData = {
   address: "",
   city: "",
@@ -18,18 +19,62 @@ const initialAddressFormData = {
   pincode: "",
   notes: "",
 };
+
 const Address = ({ setCurrentSelectedAddress, selectedId }) => {
   const [formData, setFormData] = useState(initialAddressFormData);
+  const [errors, setErrors] = useState({});
   const [currentEditedId, setCurrentEditedId] = useState(null);
+  const [isSubmitted, setIsSubmitted] = useState(false); // Track form submission
   const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shopAddress);
   const { toast } = useToast();
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(fetchAllAddress(user?.id));
-  }, [dispatch]);
+  }, [dispatch, user?.id]);
+
+  useEffect(() => {
+    if (isSubmitted) {
+      validateForm(); // Run validation only if form was submitted
+    }
+  }, [formData, isSubmitted]);
+
+  function validateForm() {
+    let newErrors = {};
+
+    if (formData.address.trim().length < 3) {
+      newErrors.address = "Address must be at least 3 characters.";
+    }
+    if (formData.city.trim().length < 3) {
+      newErrors.city = "City must be at least 3 characters.";
+    }
+    if (!/^[0-9]{10}$/.test(formData.phone)) {
+      newErrors.phone = "Phone must be a 10-digit number.";
+    }
+    if (!/^[0-9]{6}$/.test(formData.pincode)) {
+      newErrors.pincode = "Pincode must be a 6-digit number.";
+    }
+    if (formData.notes.trim().length < 3) {
+      newErrors.notes = "Notes must be at least 3 characters.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  }
+
   function handleManageAddress(event) {
     event.preventDefault();
+    setIsSubmitted(true); // Mark as submitted
+
+    if (!validateForm()) {
+      toast({
+        title: "Please fix the errors in the form.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (addressList.length >= 3 && currentEditedId === null) {
       setFormData(initialAddressFormData);
       toast({
@@ -38,39 +83,32 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
       });
       return;
     }
-    currentEditedId !== null
-      ? dispatch(
-          editaAddress({
-            userId: user?.id,
-            addressId: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          // console.log(data);
-          if (data?.payload?.success) {
-            dispatch(fetchAllAddress(user?.id));
-            setCurrentEditedId(null);
-            setFormData(initialAddressFormData);
-            toast({
-              title: "Address edited successfully",
-            });
-          }
+
+    const action = currentEditedId
+      ? editaAddress({
+          userId: user?.id,
+          addressId: currentEditedId,
+          formData,
         })
-      : dispatch(
-          addNewAddress({
-            ...formData,
-            userId: user?.id,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllAddress(user?.id));
-            setFormData(initialAddressFormData);
-            toast({
-              title: "Address added successfully",
-            });
-          }
+      : addNewAddress({
+          ...formData,
+          userId: user?.id,
         });
+
+    dispatch(action).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchAllAddress(user?.id));
+        setCurrentEditedId(null);
+        setFormData(initialAddressFormData);
+        setErrors({});
+        setIsSubmitted(false); // Reset submission state
+        toast({
+          title: `Address ${currentEditedId ? "edited" : "added"} successfully`,
+        });
+      }
+    });
   }
+
   function handleDeleteAddress(getCurrentAddress) {
     const confirm = window.confirm(
       "Are you sure you want to delete this address?"
@@ -81,33 +119,28 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
       ).then((data) => {
         if (data?.payload?.success) {
           dispatch(fetchAllAddress(user?.id));
-          toast({
-            title: "Address deleted successfully",
-          });
+          toast({ title: "Address deleted successfully" });
         }
       });
     }
   }
+
   function handleEditAddress(getCurrentAddress) {
     setCurrentEditedId(getCurrentAddress?._id);
     setFormData({
-      ...formData,
-      address: getCurrentAddress?.address,
-      city: getCurrentAddress?.city,
-      phone: getCurrentAddress?.phone,
-      pincode: getCurrentAddress?.pincode,
-      notes: getCurrentAddress?.notes,
+      address: getCurrentAddress?.address || "",
+      city: getCurrentAddress?.city || "",
+      phone: getCurrentAddress?.phone || "",
+      pincode: getCurrentAddress?.pincode || "",
+      notes: getCurrentAddress?.notes || "",
     });
+    setErrors({});
+    setIsSubmitted(false); // Reset submission state when editing
   }
-  function isFormValid() {
-    return Object.keys(formData)
-      .map((key) => formData[key].trim() !== "")
-      .every((item) => item);
-  }
+
   return (
     <Card>
       <div className="mb-5 p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {/* md:grid-cols-3 */}
         {addressList && addressList.length > 0
           ? addressList.map((singleAddressItem) => (
               <AddressCard
@@ -131,9 +164,10 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
           formControls={addressFormControls}
           formData={formData}
           setFormData={setFormData}
+          errors={isSubmitted ? errors : {}} // Show errors only after submit
           buttonText={currentEditedId !== null ? "Edit" : "Add"}
           onSubmit={handleManageAddress}
-          isBtnDisabled={!isFormValid()}
+          isBtnDisabled={isSubmitted && Object.keys(errors).length > 0}
         />
       </CardContent>
     </Card>

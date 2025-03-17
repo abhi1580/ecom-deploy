@@ -155,12 +155,12 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               </h1>
 
               {/* Price Section */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                <p className="text-xl font-bold text-gray-900">
+              <div className="flex flex-row items-center justify-between w-full">
+                <p className="text-md font-bold text-gray-900">
                   ₹{productDetails?.price}
                 </p>
                 {productDetails?.salePrice > 0 && (
-                  <p className="text-xl font-bold text-green-500">
+                  <p className="text-md font-bold text-green-500">
                     ₹{productDetails?.salePrice} (
                     {discountPercentage.toFixed(2)}% off)
                   </p>

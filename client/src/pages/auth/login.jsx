@@ -13,18 +13,31 @@ const initialState = {
 
 const AuthLogin = () => {
   const [formData, setFormData] = useState(initialState);
+  const [errors, setErrors] = useState({}); // Add errors state
   const dispatch = useDispatch();
   const { toast } = useToast();
+
+  function validateForm() {
+    let newErrors = {};
+    if (!formData.email) {
+      newErrors.email = "Please enter your email address";
+    }
+    if (!formData.password) {
+      newErrors.password = "Please enter your password";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return false if there are errors
+  }
+
   function onSubmit(e) {
     e.preventDefault();
+    if (!validateForm()) return; // Validate before submitting
 
     dispatch(loginUser(formData)).then((data) => {
-      // console.log(data);
       if (data?.payload?.success) {
         toast({
           title: data?.payload?.message,
         });
-        // navigate("/auth/login");
       } else {
         toast({
           title: data?.payload?.message,
@@ -40,7 +53,6 @@ const AuthLogin = () => {
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           Sign In to Your Account
         </h1>
-
         <p className="mt-2">
           Don't have an account?{" "}
           <Link
@@ -57,6 +69,7 @@ const AuthLogin = () => {
         formData={formData}
         setFormData={setFormData}
         onSubmit={onSubmit}
+        errors={errors} // Pass errors to CommonForm
       />
     </div>
   );
